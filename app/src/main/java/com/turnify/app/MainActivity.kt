@@ -1,14 +1,18 @@
 package com.turnify.app
 
+import LoginRequest
 import PushNotificationService
 import android.os.Bundle
-import android.widget.Button
+import android.util.Log
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.commit
-import com.turnify.app.fragments.alerts.SimpleTextButton
+import androidx.lifecycle.lifecycleScope
+import com.turnify.app.services.HttpService
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class MainActivity : AppCompatActivity() {
 
@@ -17,28 +21,24 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        supportActionBar?.hide()
         getNotificationPermission()
         PushNotificationService.initialize(this, permissionLauncher)
-        setContentView(R.layout.main_layout)
-
-        val btn: Button = findViewById(R.id.btnMainButton)
-        btn.setOnClickListener {
-            btn.isEnabled = false
-            if (savedInstanceState == null)
-            {
-                val simplePopup = SimpleTextButton.Builder()
-                    .isTitle("test")
-                    .isMainButton("OK")
-                    .build()
-
-                supportFragmentManager.commit {
-                    setReorderingAllowed(true)
-                    add(R.id.fragmentContainerView, simplePopup)
-                }
+        val loginBody = LoginRequest(
+            email = "tes@test.com",
+            password = "test"
+        )
+        lifecycleScope.launch {
+            val response = withContext(Dispatchers.IO) {
+                HttpService.fetch(
+                    "https://d2e3-181-51-32-120.ngrok-free.app/api",
+                    "/authentication/login",
+                    loginBody,
+                    "POST"
+                )
             }
-        }
 
+            Log.d("Respuesta", response ?: "Sin respuesta")
+        }
     }
 
     private fun getNotificationPermission()
