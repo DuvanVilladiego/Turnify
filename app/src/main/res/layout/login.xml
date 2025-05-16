@@ -68,52 +68,37 @@
         app:layout_constraintVertical_bias="1.0"
         app:layout_constraintWidth_percent="0.3" />
 
+
     <Button
         android:id="@+id/btn_continue"
         android:layout_width="380dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
-        android:layout_marginEnd="32dp"
         android:layout_marginTop="16dp"
+        android:layout_marginEnd="32dp"
+        android:background="@drawable/button_style"
         android:text="Continue"
         android:textColor="#FFFFFF"
-        android:background="@drawable/button_style"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.515"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/editTextText2"
         app:layout_constraintWidth_default="percent"
-        app:layout_constraintWidth_percent="0.3"/>
-
-    <Button
-        android:id="@+id/btn_google"
-        android:layout_width="380dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="72dp"
-        android:layout_marginEnd="32dp"
-        android:color="#FFFFFF"
-        android:textStyle="bold"
-        android:text="ACCEDER CON GOOGLE"
-        android:textColor="#000000"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextText2"
-        app:layout_constraintWidth_default="percent"
-        app:layout_constraintWidth_percent="0.4" />
+        app:layout_constraintWidth_percent="0.3" />
 
     <Button
         android:id="@+id/btn_pageregister"
         android:layout_width="150dp"
         android:layout_height="48dp"
         android:layout_marginStart="32dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="72dp"
         android:layout_marginEnd="32dp"
         android:text="¿No tienes una cuenta?"
         android:textSize="10sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btn_google"
+        app:layout_constraintTop_toBottomOf="@+id/btn_continue"
         app:layout_constraintWidth_default="percent"
         app:layout_constraintWidth_percent="0.3"
         tools:ignore="SmallSp" />
