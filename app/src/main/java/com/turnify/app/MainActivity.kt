@@ -1,44 +1,38 @@
 package com.turnify.app
 
-import LoginRequest
 import PushNotificationService
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.lifecycleScope
-import com.turnify.app.services.HttpService
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import com.turnify.app.Utils.DatabaseManager
+import com.turnify.app.activities.LoginActivity
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var permissionLauncher: ActivityResultLauncher<String>
+    private lateinit var loginLauncher: ActivityResultLauncher<Intent>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         getNotificationPermission()
+        supportActionBar?.hide()
         PushNotificationService.initialize(this, permissionLauncher)
-        val loginBody = LoginRequest(
-            email = "tes@test.com",
-            password = "test"
-        )
-        lifecycleScope.launch {
-            val response = withContext(Dispatchers.IO) {
-                HttpService.fetch(
-                    "https://d2e3-181-51-32-120.ngrok-free.app/api",
-                    "/authentication/login",
-                    loginBody,
-                    "POST"
-                )
-            }
-
-            Log.d("Respuesta", response ?: "Sin respuesta")
+        DatabaseManager.init(this)
+        loginLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            ejecutarAlVolverDelLogin()
         }
+        val loginIntent = Intent(this, LoginActivity::class.java)
+        loginLauncher.launch(loginIntent)
+    }
+
+    private fun ejecutarAlVolverDelLogin() {
+        val token = DatabaseManager.get().obtenerToken()
+        Log.d("TOKENAUTH", token)
     }
 
     private fun getNotificationPermission()
