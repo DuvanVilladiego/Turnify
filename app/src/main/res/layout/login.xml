@@ -3,8 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".frags.test.PrimerFragment">
+    android:layout_height="match_parent">
 
     <TextView
         android:id="@+id/textView"
@@ -32,14 +31,14 @@
         tools:ignore="SmallSp" />
 
     <EditText
-        android:id="@+id/editTextText2"
+        android:id="@+id/editTextContraseña"
         android:layout_width="380dp"
         android:layout_height="56dp"
         android:layout_marginBottom="348dp"
         android:background="@drawable/border_edittext"
         android:backgroundTint="@null"
         android:ems="10"
-        android:inputType="text"
+        android:inputType="textPassword"
         android:padding="12dp"
         android:hint="CONTRASEÑA"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
@@ -49,18 +48,18 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <EditText
-        android:id="@+id/editTextText"
+        android:id="@+id/editTextUsuario"
         android:layout_width="380dp"
         android:layout_height="56dp"
         android:layout_marginBottom="8dp"
         android:background="@drawable/border_edittext"
         android:backgroundTint="@null"
         android:ems="10"
-        android:inputType="text"
+        android:inputType="textEmailAddress"
         android:padding="12dp"
-        android:hint="USUARIO"
+        android:hint="CORREO"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-        app:layout_constraintBottom_toTopOf="@+id/editTextText2"
+        app:layout_constraintBottom_toTopOf="@+id/editTextContraseña"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.483"
         app:layout_constraintStart_toStartOf="parent"
@@ -82,7 +81,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.515"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextText2"
+        app:layout_constraintTop_toBottomOf="@+id/editTextContraseña"
         app:layout_constraintWidth_default="percent"
         app:layout_constraintWidth_percent="0.3" />
 
