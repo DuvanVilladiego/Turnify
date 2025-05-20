@@ -13,23 +13,6 @@
         tools:layout_editor_absoluteX="-15dp"
         tools:layout_editor_absoluteY="0dp" />
 
-    <Button
-        android:id="@+id/btn_support"
-        android:layout_width="150dp"
-        android:layout_height="48dp"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="32dp"
-        android:text="soporte"
-        android:textSize="10sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btn_pageregister"
-        app:layout_constraintWidth_default="percent"
-        app:layout_constraintWidth_percent="0.3"
-        tools:ignore="SmallSp" />
-
     <EditText
         android:id="@+id/editTextContraseña"
         android:layout_width="380dp"
