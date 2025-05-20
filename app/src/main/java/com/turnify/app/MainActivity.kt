@@ -19,10 +19,10 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        DatabaseManager.init(this)
         getNotificationPermission()
         supportActionBar?.hide()
         PushNotificationService.initialize(this, permissionLauncher)
-        DatabaseManager.init(this)
         loginLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             ejecutarAlVolverDelLogin()
         }

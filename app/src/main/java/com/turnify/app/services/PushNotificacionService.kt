@@ -8,6 +8,7 @@ import androidx.core.content.ContextCompat
 import com.google.firebase.FirebaseApp
 import com.google.firebase.messaging.FirebaseMessaging
 import com.turnify.app.R
+import com.turnify.app.Utils.DatabaseManager
 
 object PushNotificationService {
 
@@ -57,9 +58,7 @@ object PushNotificationService {
             }
 
             val token = task.result
-            val msg = activity.getString(R.string.msg_token_fmt, token)
-            Log.d(TAG, msg)
-            //Agregar guardado de token
+            DatabaseManager.get().insertarPushToken(token)
         }
     }
 }

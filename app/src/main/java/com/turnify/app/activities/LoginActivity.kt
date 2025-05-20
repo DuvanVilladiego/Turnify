@@ -51,7 +51,7 @@ class LoginActivity : AppCompatActivity() {
             if (userText.isEmpty() || passText.isEmpty()) {
                 Toast.makeText(this, "Por favor ingresa usuario y contraseña", Toast.LENGTH_SHORT).show()
             } else {
-                val loginBody = LoginRequest(email = userText, password = passText)
+                val loginBody = LoginRequest(email = userText, password = passText, phonetoken = DatabaseManager.get().obtenerPushToken())
 
                 lifecycleScope.launch {
                     val response = withContext(Dispatchers.IO) {

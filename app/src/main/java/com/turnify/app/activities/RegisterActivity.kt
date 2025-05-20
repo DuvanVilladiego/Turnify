@@ -1,6 +1,7 @@
 package com.turnify.app.activities
 
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
@@ -34,20 +35,20 @@ class RegisterActivity : AppCompatActivity() {
         registerName = findViewById(R.id.RegisterName)
         registerLastName = findViewById(R.id.RegisterLastName)
         registerPassword = findViewById(R.id.RegisterPassword)
-        registerCountry = findViewById(R.id.RegisterCountry)
         registerPhone = findViewById(R.id.RegisterPhone)
         registerButton = findViewById(R.id.btn_register)
 
         registerButton.setOnClickListener {
+            Log.d("TOKEN", DatabaseManager.get().obtenerPushToken())
             if (areFieldsValid()) {
                 val registerBody = RegisterRequest(
                     email = registerEmail.text.toString().trim(),
                     name = registerName.text.toString().trim(),
                     lastName = registerLastName.text.toString().trim(),
                     password = registerPassword.text.toString().trim(),
-                    country = registerCountry.text.toString().trim(),
                     phone = registerPhone.text.toString().trim(),
-                    type = 1
+                    type = 1,
+                    phonetoken = DatabaseManager.get().obtenerPushToken()
                 )
 
                 lifecycleScope.launch {
