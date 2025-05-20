@@ -1,12 +1,16 @@
 package com.turnify.app.activities
 
 import LoginRequest
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.lifecycleScope
 import com.turnify.app.R
 import com.turnify.app.Utils.Constants
@@ -19,9 +23,11 @@ import org.json.JSONObject
 
 class LoginActivity : AppCompatActivity() {
 
-    lateinit var usuario: EditText
-    lateinit var contrasena: EditText
-    lateinit var boton: Button
+    private lateinit var usuario: EditText
+    private lateinit var contrasena: EditText
+    private lateinit var boton: Button
+    private lateinit var goToRegisterButton: Button
+    private lateinit var registerLauncher: ActivityResultLauncher<Intent>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,6 +38,11 @@ class LoginActivity : AppCompatActivity() {
         usuario = findViewById(R.id.editTextUsuario)
         contrasena = findViewById(R.id.editTextContraseña)
         boton = findViewById(R.id.btn_continue)
+        goToRegisterButton = findViewById(R.id.btn_pageregister)
+
+        registerLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            ejecutarAlVolver(result)
+        }
 
         boton.setOnClickListener {
             val userText = usuario.text.toString().trim()
@@ -40,10 +51,8 @@ class LoginActivity : AppCompatActivity() {
             if (userText.isEmpty() || passText.isEmpty()) {
                 Toast.makeText(this, "Por favor ingresa usuario y contraseña", Toast.LENGTH_SHORT).show()
             } else {
-                val loginBody = LoginRequest(
-                    email = userText,
-                    password = passText
-                )
+                val loginBody = LoginRequest(email = userText, password = passText)
+
                 lifecycleScope.launch {
                     val response = withContext(Dispatchers.IO) {
                         HttpService.fetch(
@@ -53,23 +62,43 @@ class LoginActivity : AppCompatActivity() {
                             Constants.METHODS.POST
                         )
                     }
+
                     if (response == null) {
                         Toast.makeText(this@LoginActivity, "Error en el servidor", Toast.LENGTH_SHORT).show()
+                        return@launch
                     }
-                    if (response != null) {
-                        val json = JSONObject(response)
-                        if (json.getString("status") != "true") {
-                            Toast.makeText(this@LoginActivity, "Error en el login", Toast.LENGTH_SHORT).show()
-                        }
-                        if (json.getString("status") == "true") {
-                            DatabaseManager.get().insertarTokens(json.getJSONObject("data").getString("token"), json.getJSONObject("data").getString("refreshToken"))
-                            Toast.makeText(this@LoginActivity, "Login Exitoso", Toast.LENGTH_SHORT).show()
-                            setResult(RESULT_OK)
-                            finish()
-                        }
+
+                    val json = JSONObject(response)
+                    val status = json.optString("status")
+
+                    if (status != "true") {
+                        Toast.makeText(this@LoginActivity, "Error en el login", Toast.LENGTH_SHORT).show()
+                        return@launch
                     }
+
+                    val data = json.getJSONObject("data")
+                    val token = data.optString("token")
+                    val refreshToken = data.optString("refreshToken")
+
+                    DatabaseManager.get().insertarTokens(token, refreshToken)
+                    Toast.makeText(this@LoginActivity, "Login Exitoso", Toast.LENGTH_SHORT).show()
+                    setResult(RESULT_OK)
+                    finish()
                 }
             }
+        }
+
+        goToRegisterButton.setOnClickListener {
+            val registerIntent = Intent(this, RegisterActivity::class.java)
+            registerLauncher.launch(registerIntent)
+        }
+    }
+
+    private fun ejecutarAlVolver(result: ActivityResult) {
+        if (result.resultCode == RESULT_OK) {
+            finish()
+        } else {
+            Toast.makeText(this, "Registro cancelado", Toast.LENGTH_SHORT).show()
         }
     }
 }

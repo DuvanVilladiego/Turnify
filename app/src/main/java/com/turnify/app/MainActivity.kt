@@ -43,5 +43,4 @@ class MainActivity : AppCompatActivity() {
             PushNotificationService.handlePermissionResult(this, isGranted)
         }
     }
-
 }

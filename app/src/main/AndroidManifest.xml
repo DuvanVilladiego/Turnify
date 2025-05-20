@@ -23,6 +23,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".activities.LoginActivity" />
+        <activity android:name=".activities.RegisterActivity" />
 
         <service
             android:name=".services.MyFirebaseMessagingService"
