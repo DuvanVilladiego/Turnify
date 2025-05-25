@@ -6,7 +6,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
-import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
@@ -72,8 +71,13 @@ class MainActivity : AppCompatActivity() {
         val data = intent?.data
         if (data != null) {
             val codigo = data.getQueryParameter("id")
-            Log.d("DEEP_LINK", "Código recibido desde deep link: $codigo")
-            Toast.makeText(this, "Código recibido: $codigo", Toast.LENGTH_LONG).show()
+            if (!codigo.isNullOrEmpty()) {
+                subscribe(codigo)
+            }
+            else
+            {
+                Toast.makeText(this, "TURNO INVALIDO", Toast.LENGTH_SHORT).show()
+            }
         }
 
         // Lanzar login si no hay token
@@ -114,8 +118,13 @@ class MainActivity : AppCompatActivity() {
     private fun ejecutarAlVolverDeEscanear(result: ActivityResult) {
         if (result.resultCode == RESULT_OK) {
             val datoEscaneado = result.data?.getStringExtra("COODENUMBER")
-            Toast.makeText(this, datoEscaneado.toString(), Toast.LENGTH_SHORT).show()
-            Log.d("ESCANER", "Dato escaneado: $datoEscaneado")
+            if (!datoEscaneado.isNullOrEmpty()) {
+                subscribe(datoEscaneado)
+            }
+            else
+            {
+                Toast.makeText(this, "TURNO INVALIDO", Toast.LENGTH_SHORT).show()
+            }
         }
         getShifts()
     }
@@ -227,6 +236,102 @@ class MainActivity : AppCompatActivity() {
     private fun updateMain(waiting: String, number: String) {
         mainTitle.text = "Estás a ${waiting} Turnos"
         mainNumber.text = "Turno ${number}"
+    }
+    private fun subscribe(code: String) {
+        lifecycleScope.launch {
+            val idShift = getShift(code)
+            if (idShift.isNullOrEmpty()) {
+                Toast.makeText(this@MainActivity, "No se encontró el turno", Toast.LENGTH_SHORT).show()
+            } else {
+                addShift(idShift)
+            }
+            getShifts()
+        }
+    }
+
+    private suspend fun getShift(code: String): String {
+        return withContext(Dispatchers.IO) {
+            try {
+                val headers = mapOf(
+                    "Authorization" to "Bearer ${DatabaseManager.get().obtenerToken()}"
+                )
+
+                val response = HttpService.fetch(
+                    Constants.BASE_URL_SHIFTS,
+                    Constants.ENDPOINTS.GET_SHIFT + code,
+                    null,
+                    Constants.METHODS.GET,
+                    headers
+                )
+
+                if (response.isNullOrBlank()) {
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(this@MainActivity, "Respuesta vacía del servidor", Toast.LENGTH_SHORT).show()
+                    }
+                    return@withContext ""
+                }
+
+                val json = JSONObject(response)
+                val status = json.optString("status")
+
+                if (status != "true") {
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(this@MainActivity, "Código inválido: $code", Toast.LENGTH_SHORT).show()
+                    }
+                    return@withContext ""
+                }
+
+                val data = json.optJSONObject("data")
+                val id = data?.optString("id").orEmpty()
+
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@MainActivity, "Turno $code obtenido con éxito", Toast.LENGTH_SHORT).show()
+                }
+
+                return@withContext id
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@MainActivity, "Error al obtener turno $code", Toast.LENGTH_SHORT).show()
+                }
+                return@withContext ""
+            }
+        }
+    }
+
+    private fun addShift(id: String) {
+        try {
+            lifecycleScope.launch {
+                val response = withContext(Dispatchers.IO) {
+                    val headers = mapOf(
+                        "Authorization" to "Bearer ${DatabaseManager.get().obtenerToken()}"
+                    )
+
+                    HttpService.fetch(
+                        Constants.BASE_URL_SHIFTS,
+                        Constants.ENDPOINTS.SUBSCRIBE + id,
+                        null,
+                        Constants.METHODS.GET,
+                        headers
+                    )
+                }
+
+                if (response.isNullOrBlank()) {
+                    Toast.makeText(this@MainActivity, "Respuesta vacía del servidor", Toast.LENGTH_SHORT).show()
+                    return@launch
+                }
+
+                val json = JSONObject(response)
+                val status = json.optString("status")
+
+                if (status != "true") {
+                    Toast.makeText(this@MainActivity, "Error suscribirse al turno $id", Toast.LENGTH_SHORT).show()
+                    return@launch
+                }
+                Toast.makeText(this@MainActivity, "Turno $id obtenido con exito", Toast.LENGTH_SHORT).show()
+            }
+        } catch (e: Exception) {
+            Toast.makeText(this@MainActivity, "Error suscribirse al turno $id", Toast.LENGTH_SHORT).show()
+        }
     }
 
 }

@@ -59,6 +59,14 @@ class ScanerActivity : AppCompatActivity() {
         btnBackQr.setOnClickListener(){
             this.finish()
         }
+
+        btnAddCode.setOnClickListener() {
+            val resultIntent = Intent().apply {
+                putExtra("COODENUMBER", txtCodenumber.text)
+            }
+            setResult(RESULT_OK, resultIntent)
+            finish()
+        }
     }
 
     @OptIn(ExperimentalGetImage::class)

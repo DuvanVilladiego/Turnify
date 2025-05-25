@@ -10,8 +10,9 @@ object Constants {
         val REGISTER: String = "/authentication/register"
         val REFRESH: String = "/authentication/refresh"
         val GET_ALL: String = "/shift"
-        val SUBSCRIBE: String = "/shift/subscribe"
-        val COMPLETE: String = "/shift/confirm"
+        val GET_SHIFT: String = "/shift/"
+        val SUBSCRIBE: String = "/shift/subscribe/"
+        val COMPLETE: String = "/shift/confirm/"
     }
 
     object METHODS {
