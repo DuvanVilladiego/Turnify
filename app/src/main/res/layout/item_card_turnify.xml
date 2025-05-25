@@ -1,0 +1,48 @@
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="16dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="4dp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:padding="10dp">
+
+        <ImageView
+            android:id="@+id/logoTurnify"
+            android:layout_width="165dp"
+            android:layout_height="128dp"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="0dp"
+            android:src="@drawable/ic_launcher_foreground" />
+
+        <TextView
+            android:id="@+id/turnCountTurnify"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="7 Turnos"
+            android:textColor="#000000"
+            android:textSize="35sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/turnNumTurnify"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/turnCountTurnify"
+            android:layout_marginTop="12dp"
+            android:text="148" />
+
+        <TextView
+            android:id="@+id/labelTurnify"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/turnNumTurnify"
+            android:layout_marginTop="12dp"
+            android:maxLines="2"
+            android:text="Turnify\nRestaurante" />
+    </RelativeLayout>
+</androidx.cardview.widget.CardView>

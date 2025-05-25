@@ -58,7 +58,7 @@ class RegisterActivity : AppCompatActivity() {
                 val response = withContext(Dispatchers.IO) {
                     runCatching {
                         HttpService.fetch(
-                            Constants.BASE_URL,
+                            Constants.BASE_URL_AUTH,
                             Constants.ENDPOINTS.REGISTER,
                             registerBody,
                             Constants.METHODS.POST

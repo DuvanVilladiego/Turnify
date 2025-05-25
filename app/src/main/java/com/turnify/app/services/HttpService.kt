@@ -1,6 +1,8 @@
 package com.turnify.app.services
 
 import com.google.gson.Gson
+import com.turnify.app.Utils.Constants
+import com.turnify.app.Utils.DatabaseManager
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -19,32 +21,47 @@ object HttpService {
         _body: Any? = null,
         _method: String = "GET",
         _headers: Map<String, String>? = null
-    ) : String? {
-
+    ): String? {
         val fullUrl = "$_url$_path"
-
-        // Crear el cuerpo de la solicitud si se provee
         val requestBody = _body?.let { toRequestBodyFromAny(it) }
 
-        val builder = Request.Builder()
-            .url(fullUrl)
-            .method(_method, if (_method == "GET" || _body == null) null else requestBody)
+        fun buildRequest(headers: Map<String, String>?): Request {
+            val builder = Request.Builder()
+                .url(fullUrl)
+                .method(_method, if (_method == "GET" || _body == null) null else requestBody)
 
-        // Agregar cabeceras si se proveen
-        _headers?.forEach { (key, value) ->
-            builder.addHeader(key, value)
+            headers?.forEach { (key, value) ->
+                builder.addHeader(key, value)
+            }
+
+            return builder.build()
         }
 
-        val request = builder.build()
+        val request = buildRequest(_headers)
 
-        // Ejecutamos la petición en un hilo aparte (recomendado en apps Android)
-        return try {
+        try {
             client.newCall(request).execute().use { response ->
-                response.body?.string()
+                if (response.code == 401) {
+                    // Intentamos refrescar el token
+                    if (refreshToken()) {
+                        // Intentamos de nuevo con nuevo token
+                        val newHeaders = _headers?.toMutableMap() ?: mutableMapOf()
+                        newHeaders["Authorization"] = "Bearer ${DatabaseManager.get().obtenerToken()}"
+
+                        val newRequest = buildRequest(newHeaders)
+                        client.newCall(newRequest).execute().use { retryResponse ->
+                            return retryResponse.body?.string()
+                        }
+                    } else {
+                        return null // Refresh falló
+                    }
+                }
+
+                return response.body?.string()
             }
         } catch (e: IOException) {
             e.printStackTrace()
-            null
+            return null
         }
     }
 
@@ -53,4 +70,46 @@ object HttpService {
         val mediaType = "application/json; charset=utf-8".toMediaTypeOrNull()
         return json.toRequestBody(mediaType)
     }
+
+    private fun refreshToken(): Boolean {
+        val refreshToken = DatabaseManager.get().obtenerRefreshToken()
+
+        val url = Constants.BASE_URL_AUTH + Constants.ENDPOINTS.REFRESH
+        val headers = mapOf("Content-Type" to "application/json")
+        val body = mapOf("refresh_token" to refreshToken)
+
+        val requestBody = toRequestBodyFromAny(body)
+
+        val request = Request.Builder()
+            .url(url)
+            .post(requestBody)
+            .apply {
+                headers.forEach { (key, value) ->
+                    addHeader(key, value)
+                }
+            }
+            .build()
+
+        return try {
+            client.newCall(request).execute().use { response ->
+                if (response.isSuccessful) {
+                    val jsonResponse = gson.fromJson(response.body?.string(), Map::class.java)
+                    val data = jsonResponse["data"] as? Map<*, *> ?: return false
+                    val newToken = data["token"] as? String
+                    val newRefreshToken = data["refreshToken"] as? String
+
+                    if (!newToken.isNullOrBlank() && !newRefreshToken.isNullOrBlank()) {
+                        DatabaseManager.get().insertarTokens(newToken, newRefreshToken)
+                        return true
+                    }
+                }
+                false
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false
+        }
+    }
+
+
 }

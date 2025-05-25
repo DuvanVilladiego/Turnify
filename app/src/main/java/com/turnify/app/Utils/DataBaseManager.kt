@@ -4,13 +4,15 @@ import android.content.Context
 import com.turnify.app.helpers.DataHelper
 
 object DatabaseManager {
-    lateinit var userInfo: DataHelper
+    private var userInfo: DataHelper? = null
 
     fun init(context: Context) {
-        userInfo = DataHelper(context.applicationContext)
+        if (userInfo == null) {
+            userInfo = DataHelper(context.applicationContext)
+        }
     }
 
     fun get(): DataHelper {
-        return userInfo
+        return userInfo ?: throw IllegalStateException("DatabaseManager no ha sido inicializado. Llama a init() primero.")
     }
 }

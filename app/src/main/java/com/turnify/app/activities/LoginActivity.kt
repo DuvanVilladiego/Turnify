@@ -56,7 +56,7 @@ class LoginActivity : AppCompatActivity() {
                 lifecycleScope.launch {
                     val response = withContext(Dispatchers.IO) {
                         HttpService.fetch(
-                            Constants.BASE_URL,
+                            Constants.BASE_URL_AUTH,
                             Constants.ENDPOINTS.LOGIN,
                             loginBody,
                             Constants.METHODS.POST

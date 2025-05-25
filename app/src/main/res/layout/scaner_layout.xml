@@ -5,28 +5,123 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <EditText
+        android:id="@+id/txtCodenumber"
+        android:layout_width="326dp"
+        android:layout_height="47dp"
+        android:ems="10"
+        android:hint="Código"
+        android:inputType="number"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="@+id/previewView"
+        app:layout_constraintEnd_toEndOf="@+id/previewView"
+        app:layout_constraintStart_toStartOf="@+id/previewView"
+        app:layout_constraintTop_toTopOf="@+id/previewView" />
+
+    <Button
+        android:id="@+id/btnPutCode"
+        android:layout_width="103dp"
+        android:layout_height="46dp"
+        android:background="@color/purple_200"
+        android:text="Aceptar"
+        android:textColor="#FFFFFF"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="@+id/previewView"
+        app:layout_constraintEnd_toEndOf="@+id/previewView"
+        app:layout_constraintStart_toStartOf="@+id/previewView"
+        app:layout_constraintTop_toTopOf="@+id/txtCodenumber" />
+
     <androidx.camera.view.PreviewView
         android:id="@+id/previewView"
-        android:layout_width="300dp"
-        android:layout_height="300dp"
-        android:layout_marginStart="81dp"
+        android:layout_width="352dp"
+        android:layout_height="334dp"
+        android:layout_marginStart="80dp"
         android:layout_marginTop="184dp"
-        android:layout_marginEnd="82dp"
+        android:layout_marginEnd="80dp"
+        android:background="@drawable/rounded_border"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.478"
+        app:layout_constraintHorizontal_bias="0.506"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+    </androidx.camera.view.PreviewView>
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/materialToolbar"
+        android:layout_width="0dp"
+        android:layout_height="52dp"
+        android:layout_marginStart="1dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="1dp"
+        android:background="#E5CDFF"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="?attr/actionBarTheme"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <Button
-        android:id="@+id/idBackQr"
+    <TextView
+        android:id="@+id/txtScannerTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="162dp"
-        android:layout_marginEnd="156dp"
-        android:layout_marginBottom="135dp"
-        android:text="Regresar"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginStart="12dp"
+        android:text="Escanear QR"
+        android:textAlignment="textEnd"
+        android:textColor="#000000"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="@+id/materialToolbar"
+        app:layout_constraintStart_toStartOf="@+id/materialToolbar"
+        app:layout_constraintTop_toTopOf="@+id/materialToolbar"
+        app:layout_constraintVertical_bias="0.515" />
+
+    <ImageButton
+        android:id="@+id/btnBackQr"
+        android:layout_width="42dp"
+        android:layout_height="50dp"
+        android:layout_marginEnd="12dp"
+        android:background="#00FFFFFF"
+        android:scaleX="2"
+        android:scaleY="2"
+        app:layout_constraintBottom_toBottomOf="@+id/materialToolbar"
+        app:layout_constraintEnd_toEndOf="@+id/materialToolbar"
+        app:layout_constraintTop_toTopOf="@+id/materialToolbar"
+        app:layout_constraintVertical_bias="1.0"
+        app:srcCompat="@drawable/ic_close" />
+
+    <ImageButton
+        android:id="@+id/btnAddCode"
+        style="@style/Widget.AppCompat.ImageButton"
+        android:layout_width="88dp"
+        android:layout_height="52dp"
+        android:layout_marginStart="106dp"
+        android:layout_marginTop="80dp"
+        android:layout_marginEnd="107dp"
+        android:background="#00FFFFFF"
+        android:scaleType="centerInside"
+        android:scaleX="2"
+        android:scaleY="2"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/previewView"
+        app:srcCompat="@drawable/keyboard" />
+
+    <ImageButton
+        android:id="@+id/btnAddCamara"
+        style="@style/Widget.AppCompat.ImageButton"
+        android:layout_width="68dp"
+        android:layout_height="42dp"
+        android:layout_marginStart="106dp"
+        android:layout_marginTop="80dp"
+        android:layout_marginEnd="107dp"
+        android:background="#00FFFFFF"
+        android:scaleType="centerInside"
+        android:scaleX="2"
+        android:scaleY="2"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/previewView"
+        app:srcCompat="@drawable/camera" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

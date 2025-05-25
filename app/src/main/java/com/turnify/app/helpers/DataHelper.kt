@@ -73,7 +73,7 @@ class DataHelper(context: Context) : SQLiteOpenHelper(context, "userInfo.db", nu
         val cursor = db.rawQuery("SELECT refreshToken FROM auth WHERE id = 1", null)
         var refreshToken = ""
         if (cursor.moveToFirst()) {
-            refreshToken = cursor.getString(0)
+            refreshToken = cursor.getString(1)
         }
         cursor.close()
         return refreshToken

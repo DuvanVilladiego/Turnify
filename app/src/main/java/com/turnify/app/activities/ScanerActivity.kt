@@ -13,19 +13,52 @@ import com.google.mlkit.vision.common.InputImage
 import androidx.camera.core.*
 import com.turnify.app.R
 import java.util.concurrent.Executors
+import android.net.Uri
+import android.transition.Visibility
+import android.view.View.GONE
+import android.view.View.INVISIBLE
+import android.view.View.VISIBLE
+import android.widget.Button
+import android.widget.EditText
+import android.widget.ImageButton
+import android.widget.TextView
 
 class ScanerActivity : AppCompatActivity() {
 
     private lateinit var previewView: PreviewView
     private val cameraExecutor = Executors.newSingleThreadExecutor()
+    private lateinit var btnBackQr: ImageButton
+    private lateinit var btnAddCode: ImageButton
+    private lateinit var btnAddCamara: ImageButton
+    private lateinit var btnAddManualCode: Button
+    private lateinit var txtScannerTitle: TextView
+    private lateinit var txtCodenumber: EditText
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.scaner_layout)
         supportActionBar?.hide()
-
+        btnBackQr = findViewById(R.id.btnBackQr)
+        btnAddCode = findViewById(R.id.btnAddCode)
+        btnAddCamara = findViewById(R.id.btnAddCamara)
+        btnAddManualCode = findViewById(R.id.btnPutCode)
         previewView = findViewById(R.id.previewView)
+        txtScannerTitle = findViewById(R.id.txtScannerTitle)
+        txtCodenumber = findViewById(R.id.txtCodenumber)
+
         startCamera()
+
+        btnAddCode.setOnClickListener() {
+            enableInputCode()
+        }
+
+        btnAddCamara.setOnClickListener() {
+            enableInputCamera()
+        }
+
+        btnBackQr.setOnClickListener(){
+            this.finish()
+        }
     }
 
     @OptIn(ExperimentalGetImage::class)
@@ -57,7 +90,9 @@ class ScanerActivity : AppCompatActivity() {
                                 for (barcode in barcodes) {
                                     barcode.rawValue?.let { value ->
                                         val resultIntent = Intent().apply {
-                                            putExtra("COODENUMBER", value)
+                                            val uri = Uri.parse(value)
+                                            val codigo = uri.getQueryParameter("id")
+                                            putExtra("COODENUMBER", codigo)
                                         }
                                         setResult(RESULT_OK, resultIntent)
                                         finish()
@@ -87,5 +122,29 @@ class ScanerActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         cameraExecutor.shutdown()
+    }
+
+    private fun enableInputCode() {
+        //esconder camara inputs
+        previewView.visibility = INVISIBLE
+        btnAddCode.visibility = INVISIBLE
+
+        btnAddManualCode.visibility = VISIBLE
+        txtCodenumber.visibility = VISIBLE
+        btnAddCamara.visibility = VISIBLE
+
+        txtScannerTitle.text = "Ingresar Codigo"
+    }
+
+    private fun enableInputCamera() {
+        //esconder code inputs
+        btnAddManualCode.visibility = INVISIBLE
+        txtCodenumber.visibility = INVISIBLE
+        btnAddCamara.visibility = INVISIBLE
+
+        previewView.visibility = VISIBLE
+        btnAddCode.visibility = VISIBLE
+
+        txtScannerTitle.text = "Escanear QR"
     }
 }
