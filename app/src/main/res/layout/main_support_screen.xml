@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center_horizontal"
+    android:padding="24dp"
+    android:background="#FFFFFF">
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="92dp"
+        android:text="Turnify"
+        android:textColor="#000000"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/btnTerms"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="88dp"
+        android:background="@drawable/button_support"
+        android:text="  Términos y condiciones"
+        android:textColor="#000000"
+        app:layout_constraintTop_toBottomOf="@+id/title"
+        tools:layout_editor_absoluteX="24dp" />
+
+    <Button
+        android:id="@+id/btnSupport"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/button_support"
+        android:text="Soporte"
+        android:textColor="#000000"
+        app:layout_constraintTop_toBottomOf="@+id/btnTerms"
+        tools:layout_editor_absoluteX="24dp" />
+
+    <Button
+        android:id="@+id/btnLogout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/button_support"
+        android:text="  Cerrar sesión"
+        android:textColor="#8B0000"
+        app:layout_constraintTop_toBottomOf="@+id/btnSupport"
+        tools:layout_editor_absoluteX="24dp" />
+
+    <Button
+        android:id="@+id/btnDelete"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/button_support_delete"
+        android:text="Borrar cuenta"
+        android:textColor="#FFFFFF"
+        app:layout_constraintTop_toBottomOf="@+id/btnLogout"
+        tools:layout_editor_absoluteX="32dp" />
+
+    <ImageView
+        android:id="@+id/closeIcon"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:src="@drawable/ic_close"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+</androidx.constraintlayout.widget.ConstraintLayout>
