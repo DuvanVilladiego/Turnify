@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
@@ -21,7 +22,8 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.turnify.app.Utils.Constants
 import com.turnify.app.Utils.DatabaseManager
 import com.turnify.app.activities.LoginActivity
-import com.turnify.app.activities.ScanerActivity
+import com.turnify.app.activities.ScannerActivity
+import com.turnify.app.fragments.alerts.SimpleTextButton
 import com.turnify.app.services.HttpService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -34,10 +36,13 @@ class MainActivity : AppCompatActivity() {
     private lateinit var notificationPermissionLauncher: ActivityResultLauncher<String>
     private lateinit var cameraPermissionLauncher: ActivityResultLauncher<String>
     private lateinit var loginLauncher: ActivityResultLauncher<Intent>
-    private lateinit var escanerLauncher: ActivityResultLauncher<Intent>
-    private lateinit var btnEscanear: FloatingActionButton
+    private lateinit var scannerLauncher: ActivityResultLauncher<Intent>
+    private lateinit var btnScanner: FloatingActionButton
     private lateinit var mainTitle : TextView
     private lateinit var mainNumber : TextView
+    private lateinit var logo : ImageView
+
+    private lateinit var id : String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,22 +50,19 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.main_layout)
         supportActionBar?.hide()
 
-        // Inicializar servicios
         DatabaseManager.init(this)
 
         initializePermissionLaunchers()
         PushNotificationService.initialize(this, notificationPermissionLauncher)
 
-        // Verificar permisos al iniciar
         checkCameraPermission()
 
-        // Inicializar vistas
-        btnEscanear = findViewById(R.id.btnScanear)
+        btnScanner = findViewById(R.id.btnScanear)
         mainTitle = findViewById(R.id.turnInfo)
         mainNumber = findViewById(R.id.turnoLabel)
+        logo = findViewById(R.id.TurnifyLogo)
 
-        // Configurar launchers
-        escanerLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        scannerLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             ejecutarAlVolverDeEscanear(it)
         }
 
@@ -73,25 +75,21 @@ class MainActivity : AppCompatActivity() {
             val codigo = data.getQueryParameter("id")
             if (!codigo.isNullOrEmpty()) {
                 subscribe(codigo)
-            }
-            else
-            {
+            } else {
                 Toast.makeText(this, "TURNO INVALIDO", Toast.LENGTH_SHORT).show()
             }
         }
 
-        // Lanzar login si no hay token
         if (DatabaseManager.get().obtenerToken().isNullOrBlank()) {
             val loginIntent = Intent(this, LoginActivity::class.java)
             loginLauncher.launch(loginIntent)
         }
 
-        if (!DatabaseManager.get().obtenerToken().isNullOrBlank())
-        {
+        if (!DatabaseManager.get().obtenerToken().isNullOrBlank()) {
             getShifts()
         }
 
-        btnEscanear.setOnClickListener {
+        btnScanner.setOnClickListener {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
                 scanQr()
             } else {
@@ -99,11 +97,41 @@ class MainActivity : AppCompatActivity() {
                 checkCameraPermission()
             }
         }
+
+        supportFragmentManager.setFragmentResultListener("confirm_shift_result", this) { _, bundle ->
+            val shouldConfirm = bundle.getBoolean("confirm", false)
+            if (shouldConfirm) {
+                confirmShift(id)
+            }
+        }
+
+        logo.setOnClickListener {
+            val fragment = SimpleTextButton.Builder()
+                .isMainButton("CONFIRMAR") // Texto del botón
+                .isTitle("CONFIRMAR TURNO") // Título del fragmento
+                .isDescription("CONFIRMAR EL TURNO TE SACARÁ DE LA FILA") // Descripción
+                .setButtonClickListener {
+                    // Acción al presionar el botón CONFIRMAR
+                    confirmShift(id) // <-- reemplaza esto con el ID dinámico
+                }
+                .build()
+
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.fragmentContainer, fragment)
+                .addToBackStack(null)
+                .commit()
+        }
+
+        supportFragmentManager.addOnBackStackChangedListener {
+            val fragment = supportFragmentManager.findFragmentById(R.id.fragmentContainer)
+            if (fragment == null) {
+                getShifts()
+            }
+        }
     }
 
     override fun onResume() {
         super.onResume()
-
         val token = DatabaseManager.get().obtenerToken()
         if (!token.isNullOrBlank()) {
             getShifts()
@@ -111,8 +139,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun scanQr() {
-        val scanIntent = Intent(this, ScanerActivity::class.java)
-        escanerLauncher.launch(scanIntent)
+        val scanIntent = Intent(this, ScannerActivity::class.java)
+        scannerLauncher.launch(scanIntent)
     }
 
     private fun ejecutarAlVolverDeEscanear(result: ActivityResult) {
@@ -120,9 +148,7 @@ class MainActivity : AppCompatActivity() {
             val datoEscaneado = result.data?.getStringExtra("COODENUMBER")
             if (!datoEscaneado.isNullOrEmpty()) {
                 subscribe(datoEscaneado)
-            }
-            else
-            {
+            } else {
                 Toast.makeText(this, "TURNO INVALIDO", Toast.LENGTH_SHORT).show()
             }
         }
@@ -237,13 +263,14 @@ class MainActivity : AppCompatActivity() {
         mainTitle.text = "Estás a ${waiting} Turnos"
         mainNumber.text = "Turno ${number}"
     }
+
     private fun subscribe(code: String) {
         lifecycleScope.launch {
-            val idShift = getShift(code)
-            if (idShift.isNullOrEmpty()) {
+            id = getShift(code)
+            if (id.isNullOrEmpty()) {
                 Toast.makeText(this@MainActivity, "No se encontró el turno", Toast.LENGTH_SHORT).show()
             } else {
-                addShift(idShift)
+                addShift(id)
             }
             getShifts()
         }
@@ -299,39 +326,51 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun addShift(id: String) {
-        try {
-            lifecycleScope.launch {
-                val response = withContext(Dispatchers.IO) {
-                    val headers = mapOf(
-                        "Authorization" to "Bearer ${DatabaseManager.get().obtenerToken()}"
-                    )
+        lifecycleScope.launch {
+            val response = withContext(Dispatchers.IO) {
+                val headers = mapOf(
+                    "Authorization" to "Bearer ${DatabaseManager.get().obtenerToken()}"
+                )
 
-                    HttpService.fetch(
-                        Constants.BASE_URL_SHIFTS,
-                        Constants.ENDPOINTS.SUBSCRIBE + id,
-                        null,
-                        Constants.METHODS.GET,
-                        headers
-                    )
-                }
-
-                if (response.isNullOrBlank()) {
-                    Toast.makeText(this@MainActivity, "Respuesta vacía del servidor", Toast.LENGTH_SHORT).show()
-                    return@launch
-                }
-
-                val json = JSONObject(response)
-                val status = json.optString("status")
-
-                if (status != "true") {
-                    Toast.makeText(this@MainActivity, "Error suscribirse al turno $id", Toast.LENGTH_SHORT).show()
-                    return@launch
-                }
-                Toast.makeText(this@MainActivity, "Turno $id obtenido con exito", Toast.LENGTH_SHORT).show()
+                HttpService.fetch(
+                    Constants.BASE_URL_SHIFTS,
+                    Constants.ENDPOINTS.SUBSCRIBE + id,
+                    null,
+                    Constants.METHODS.GET,
+                    headers
+                )
             }
-        } catch (e: Exception) {
-            Toast.makeText(this@MainActivity, "Error suscribirse al turno $id", Toast.LENGTH_SHORT).show()
+
+            if (!response.isNullOrBlank()) {
+                Toast.makeText(this@MainActivity, "Turno suscrito con éxito", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(this@MainActivity, "Error al suscribirse al turno", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
+    private fun confirmShift(id: String) {
+        lifecycleScope.launch {
+            val response = withContext(Dispatchers.IO) {
+                val headers = mapOf(
+                    "Authorization" to "Bearer ${DatabaseManager.get().obtenerToken()}"
+                )
+
+                HttpService.fetch(
+                    Constants.BASE_URL_SHIFTS,
+                    Constants.ENDPOINTS.COMPLETE + id,
+                    null,
+                    Constants.METHODS.GET,
+                    headers
+                )
+            }
+
+            if (!response.isNullOrBlank()) {
+                Toast.makeText(this@MainActivity, "Turno confirmado", Toast.LENGTH_SHORT).show()
+                getShifts()
+            } else {
+                Toast.makeText(this@MainActivity, "Error al confirmar turno", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 }

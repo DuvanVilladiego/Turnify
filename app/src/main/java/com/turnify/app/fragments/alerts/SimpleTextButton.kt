@@ -16,11 +16,7 @@ class SimpleTextButton : Fragment() {
     private var description: String? = null
     private var btnText: String? = null
     private var isShow: Boolean = false
-
-    private lateinit var txtTitle: TextView
-    private lateinit var txtDescription: TextView
-    private lateinit var btnMain: Button
-    private lateinit var cnstLayout: ConstraintLayout
+    private var onClick: (() -> Unit)? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,41 +38,42 @@ class SimpleTextButton : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        cnstLayout = view.findViewById(R.id.cnstLayoutSimpleButtonText)
-        txtTitle = view.findViewById(R.id.txtTitle)
-        txtDescription = view.findViewById(R.id.txtDescription)
-        btnMain = view.findViewById(R.id.btnMain)
+        val cnstLayout = view.findViewById<ConstraintLayout>(R.id.cnstLayoutSimpleButtonText)
+        val txtTitle = view.findViewById<TextView>(R.id.txtTitle)
+        val txtDescription = view.findViewById<TextView>(R.id.txtDescription)
+        val btnMain = view.findViewById<Button>(R.id.btnMain)
 
-        // Mostrar u ocultar el CardView según la propiedad
         cnstLayout.visibility = if (isShow) View.VISIBLE else View.GONE
 
-        // Setear los textos y visibilidades
-        if (title.isNullOrEmpty()) {
-            txtTitle.visibility = View.GONE
-        } else {
-            txtTitle.text = title
+        txtTitle.apply {
+            if (title.isNullOrEmpty()) visibility = View.GONE
+            else text = title
         }
 
-        if (description.isNullOrEmpty()) {
-            txtDescription.visibility = View.GONE
-        } else {
-            txtDescription.text = description
+        txtDescription.apply {
+            if (description.isNullOrEmpty()) visibility = View.GONE
+            else text = description
         }
 
-        if (btnText.isNullOrEmpty()) {
-            btnMain.visibility = View.GONE
-        } else {
+        if (!btnText.isNullOrEmpty()) {
             btnMain.text = btnText
+            btnMain.setOnClickListener {
+                onClick?.invoke() // Usa el callback personalizado si existe
+                parentFragmentManager.popBackStack() // Cierra el fragmento
+            }
+        } else {
+            btnMain.visibility = View.GONE
         }
+    }
 
-        // Acción del botón
-        btnMain.setOnClickListener {
-            cnstLayout.visibility = View.GONE
-        }
+    // Permite al Builder pasar el callback
+    fun setOnClickListener(listener: () -> Unit) {
+        onClick = listener
     }
 
     class Builder {
         private val args = Bundle()
+        private var onClick: (() -> Unit)? = null
 
         init {
             args.putBoolean(ARG_SHOW, true)
@@ -87,9 +84,14 @@ class SimpleTextButton : Fragment() {
         fun isMainButton(text: String) = apply { args.putString(ARG_BTN_TEXT, text) }
         fun isShow(show: Boolean) = apply { args.putBoolean(ARG_SHOW, show) }
 
+        fun setButtonClickListener(listener: () -> Unit) = apply {
+            onClick = listener
+        }
+
         fun build(): SimpleTextButton {
             val fragment = SimpleTextButton()
             fragment.arguments = args
+            fragment.setOnClickListener(onClick ?: {}) // Asigna el callback si no es nulo
             return fragment
         }
     }
@@ -99,16 +101,5 @@ class SimpleTextButton : Fragment() {
         private const val ARG_DESCRIPTION = "arg_description"
         private const val ARG_BTN_TEXT = "arg_text"
         private const val ARG_SHOW = "arg_show"
-
-        @JvmStatic
-        fun newInstance(title: String, description: String, textButton: String, isShow: Boolean) =
-            SimpleTextButton().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_TITLE, title)
-                    putString(ARG_DESCRIPTION, description)
-                    putString(ARG_BTN_TEXT, textButton)
-                    putBoolean(ARG_SHOW, isShow)
-                }
-            }
     }
 }

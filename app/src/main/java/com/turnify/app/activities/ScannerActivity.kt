@@ -14,8 +14,6 @@ import androidx.camera.core.*
 import com.turnify.app.R
 import java.util.concurrent.Executors
 import android.net.Uri
-import android.transition.Visibility
-import android.view.View.GONE
 import android.view.View.INVISIBLE
 import android.view.View.VISIBLE
 import android.widget.Button
@@ -23,7 +21,7 @@ import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.TextView
 
-class ScanerActivity : AppCompatActivity() {
+class ScannerActivity : AppCompatActivity() {
 
     private lateinit var previewView: PreviewView
     private val cameraExecutor = Executors.newSingleThreadExecutor()
@@ -32,7 +30,7 @@ class ScanerActivity : AppCompatActivity() {
     private lateinit var btnAddCamara: ImageButton
     private lateinit var btnAddManualCode: Button
     private lateinit var txtScannerTitle: TextView
-    private lateinit var txtCodenumber: EditText
+    private lateinit var txtCodeNumber: EditText
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,7 +42,7 @@ class ScanerActivity : AppCompatActivity() {
         btnAddManualCode = findViewById(R.id.btnPutCode)
         previewView = findViewById(R.id.previewView)
         txtScannerTitle = findViewById(R.id.txtScannerTitle)
-        txtCodenumber = findViewById(R.id.txtCodenumber)
+        txtCodeNumber = findViewById(R.id.txtCodenumber)
 
         startCamera()
 
@@ -60,13 +58,6 @@ class ScanerActivity : AppCompatActivity() {
             this.finish()
         }
 
-        btnAddCode.setOnClickListener() {
-            val resultIntent = Intent().apply {
-                putExtra("COODENUMBER", txtCodenumber.text)
-            }
-            setResult(RESULT_OK, resultIntent)
-            finish()
-        }
     }
 
     @OptIn(ExperimentalGetImage::class)
@@ -138,16 +129,24 @@ class ScanerActivity : AppCompatActivity() {
         btnAddCode.visibility = INVISIBLE
 
         btnAddManualCode.visibility = VISIBLE
-        txtCodenumber.visibility = VISIBLE
+        txtCodeNumber.visibility = VISIBLE
         btnAddCamara.visibility = VISIBLE
 
         txtScannerTitle.text = "Ingresar Codigo"
+
+        btnAddManualCode.setOnClickListener() {
+            val resultIntent = Intent().apply {
+                putExtra("COODENUMBER", txtCodeNumber.text)
+            }
+            setResult(RESULT_OK, resultIntent)
+            finish()
+        }
     }
 
     private fun enableInputCamera() {
         //esconder code inputs
         btnAddManualCode.visibility = INVISIBLE
-        txtCodenumber.visibility = INVISIBLE
+        txtCodeNumber.visibility = INVISIBLE
         btnAddCamara.visibility = INVISIBLE
 
         previewView.visibility = VISIBLE

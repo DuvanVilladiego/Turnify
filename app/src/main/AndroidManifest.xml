@@ -43,7 +43,7 @@
 
         <activity android:name=".activities.LoginActivity" />
         <activity android:name=".activities.RegisterActivity" />
-        <activity android:name=".activities.ScanerActivity" />
+        <activity android:name=".activities.ScannerActivity" />
 
         <service
             android:name=".services.MyFirebaseMessagingService"

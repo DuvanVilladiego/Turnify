@@ -2,8 +2,8 @@ package com.turnify.app.Utils
 
 object Constants {
 
-    val BASE_URL_AUTH: String = "https://7e95-186-114-54-24.ngrok-free.app/api"
-    val BASE_URL_SHIFTS: String = "https://349a-181-51-32-120.ngrok-free.app/api"
+    val BASE_URL_AUTH: String = "https://aa34-181-51-32-120.ngrok-free.app/api"
+    val BASE_URL_SHIFTS: String = "https://ba99-181-51-32-120.ngrok-free.app/api"
 
     object ENDPOINTS {
         val LOGIN: String = "/authentication/login"
